@@ -1,7 +1,8 @@
 // This is a template for a Node.js scraper on morph.io (https://morph.io)
 
 var cheerio = require("cheerio");
-var request = require("request");
+//var request = require("request");
+var needle = require("needle");
 var sqlite3 = require("sqlite3").verbose();
 
 function initDatabase(callback) {
@@ -39,6 +40,7 @@ function fetchPage(url, callback) {
 	});
 }
 
+
 function run(db) {
 	// Use request to read in pages.
 	fetchPage("https://morph.io", function (body) {
@@ -56,4 +58,11 @@ function run(db) {
 	});
 }
 
-initDatabase(run);
+//initDatabase(run);
+function fetchRss(url, callback){
+	needle.get(url,function(err, resp, body){
+		if (err) throw err;
+		var a = body;
+	});	
+}
+fetchRss("http://feed.rutracker.cc/atom/f/2200.atom");
