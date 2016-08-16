@@ -3,6 +3,7 @@
 		"cheerio": "latest",
 		"xml2js": "latest",
 		"needle": "latest",
+		"async": "latest",
 		"sqlite3": "latest"
 	}
 }
