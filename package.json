@@ -1,9 +1,11 @@
 {
-	"dependencies": {
-		"cheerio": "latest",
-		"xml2js": "latest",
-		"needle": "latest",
-		"async": "latest",
-		"sqlite3": "latest"
-	}
+  "dependencies": {
+    "asyncawait": "^1.0.6",
+    "bluebird": "^3.4.1",
+    "cheerio": "latest",
+    "lodash": "^4.15.0",
+    "needle": "latest",
+    "sqlite3": "latest",
+    "xml2js": "latest"
+  }
 }
