@@ -50,7 +50,7 @@ exports.films = {
         return _db.runAsync("UPDATE films SET updated=strftime('%s','now') WHERE id=?", [id]);
     }),
     insert: async(function (film) {
-        return _db.runAsync("INSERT INTO films(id,name,nameRu,year,desc,updated) VALUES(?,?,?,?,?,strftime('%s','now'))",
+        return _db.runAsync("INSERT INTO films(id,name,nameRu,year,description,updated) VALUES(?,?,?,?,?,strftime('%s','now'))",
             [film.id, film.name, film.nameRu, film.year, film.desc]);
     })
 }

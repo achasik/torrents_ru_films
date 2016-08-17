@@ -24,7 +24,7 @@ CREATE TABLE films(
 	name TEXT,
 	nameRu TEXT,
 	year INTEGER NOT NULL,
-	desc TEXT,
+	description TEXT,
 	updated INTEGER,
 	PRIMARY KEY (id)
 );
@@ -37,8 +37,7 @@ CREATE TABLE torrents(
 	kinopoisk INTEGER NOT NULL,
 	title TEXT NOT NULL,
 	url  TEXT NOT NULL,
-	magnet TEXT NOT NULL,
-	description TEXT,
+	magnet TEXT NOT NULL,	
 	PRIMARY KEY (trackerId, id),
 	FOREIGN KEY(trackerId) REFERENCES trackers(id),
 	FOREIGN KEY(kinopoisk) REFERENCES films(id)
