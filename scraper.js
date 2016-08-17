@@ -31,7 +31,10 @@ var getFeedEntries = async(function (feed) {
             url: entry.link.$.href.replace('.org', '.net')
         }
     });
-    feed.torrents = await(_.filter(feed.torrents, function (torrent) { return db.torrents.get(torrent.trackerId, torrent.id); }));
+    feed.torrents = await(_.filter(feed.torrents, function (torrent) { 
+        var result = await(db.torrents.get(torrent.trackerId, torrent.id));
+        return !result; 
+    }));
     feed.torrents = await(_.map(feed.torrents, getTorrent));
     return feed;
 });
@@ -57,7 +60,7 @@ var getTorrent = async(function (torrent) {
 });
 
 var test = async(function () {
-    await(db.init());
+    //await(db.init());
     var trackers = await(db.trackers());
     trackers = await(_.map(trackers, getFeeds));
     return trackers;
