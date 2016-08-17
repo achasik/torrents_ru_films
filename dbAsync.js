@@ -13,17 +13,24 @@ exports.close = function (callback) {
 }
 
 exports.init = async(function () {
+    console.log('Init DB');
     var sql = fs.readFileSync('./init.sql', 'utf8');
     var result = await(_db.execAsync(sql));
+    console.log('Init Done');
 });
 
 exports.trackers = async(function () {
     return _db.allAsync('SELECT * FROM trackers WHERE active');
 });
 
-exports.feeds = async(function (trackerId) {
-    return _db.allAsync('SELECT * FROM feeds WHERE trackerId=? AND active', trackerId);
-});
+exports.feeds = {
+    get: async(function (trackerId) {
+        return _db.allAsync('SELECT * FROM feeds WHERE trackerId=? AND active', trackerId);
+    }),
+    update: async(function (id) {
+        return _db.runAsync("UPDATE feeds SET updated=strftime('%s','now') WHERE id=?", [id]);
+    }),
+}
 
 exports.torrents = {
     get: async(function (trackerId, id) {
