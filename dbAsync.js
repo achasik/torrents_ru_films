@@ -7,10 +7,9 @@ const fs = require("fs");
 var sqlite3 = Promise.promisifyAll(require('sqlite3').verbose());
 var _db = _db || new sqlite3.Database("data.sqlite");
 
-exports.close = function (callback) {
+exports.close = function () {
     _db.close();
-    if (callback) callback();
-}
+};
 
 exports.init = async(function () {
     console.log('Init DB');

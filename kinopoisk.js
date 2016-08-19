@@ -38,11 +38,14 @@ var searchApi = async(function (possible, findRu) {
     if (!body) return null;
     var json = JSON.parse(body);    
     var film;
-    if (json.youmean) {
+    if (json.youmean && json.youmean.type ==='KPFilm') {
         film = jsonToFilm(json.youmean);
         if (filmsEqual(possible, film)) return getFilm(film.id);
     }    
-    film = json.searchFilms.map(jsonToFilm).find(function(e){return filmsEqual(possible, e)});
+    film = json.searchFilms
+            .filter(function(e){return e.type==='KPFilm'})
+            .map(jsonToFilm)
+            .find(function(e){return filmsEqual(possible, e)});
     if (film) return getFilm(film.id);
     if (!findRu && possible.nameRU) return searchApi(possible, true);
     return null;
@@ -69,8 +72,6 @@ function jsonToFilm(json) {
 function searchLocal(possible) {
     return null;
 }
-
-
 
 function filmName(name) {
     if (!name) return name;

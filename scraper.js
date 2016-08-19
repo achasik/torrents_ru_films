@@ -54,11 +54,11 @@ var getTorrent = asyncLimit(function (torrent) {
         torrent.magnet = magnet;
     var link = $('a[href*="kinopoisk"]').attr('href');
     if (link) {
-        var id = link.match(/film\/(\d+)\//)[1];        
-        id = await (kinopoisk.getFilm(id));
+        let id = link.match(/film\/(\d+)\//)[1];        
+        let film = await (kinopoisk.getFilm(id));
         if (film) torrent.kinopoisk = film.id;
     }else{
-        var film = await(kinopoisk.search(torrent));
+        let film = await(kinopoisk.search(torrent));
         if(film) torrent.kinopoisk = film.id;
     }
     if (torrent.kinopoisk){
@@ -66,7 +66,7 @@ var getTorrent = asyncLimit(function (torrent) {
         await(db.films.update(torrent.kinopoisk));
         return null;
     }
-    console.warn('Kinopoisk id not found', torrent.url, kinopoisk.humanize(torrent.title));
+    console.warn('Kinopoisk id not found', torrent.url, JSON.stringify(kinopoisk.humanize(torrent.title)));
     return torrent;
 });
 
@@ -75,9 +75,11 @@ var run = async(function () {
         await(db.init());
     var trackers = await(db.trackers());
     trackers = await(_.map(trackers, getFeeds));
+    //db.close(function(){ console.log('DONE');});
     return trackers;
 });
 
+ 
 run()
     .then(function(){db.close()})
     .then(function(){console.log('DONE')})
