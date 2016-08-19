@@ -4,7 +4,7 @@ var await = require('asyncawait/await');
 var db = require('./dbAsync');
 var web = require('./web');
 var he = require('he');
-
+var diacritics = require('./diacritics');
 const BASE_URL = 'http://api.kinopoisk.cf/';
 
 
@@ -51,11 +51,15 @@ var searchApi = async(function (possible, findRu) {
     return null;
 });
 function filmsEqual(possible, film) {
-    var equal = possible.nameEN && film.nameEN && possible.nameEN.toLowerCase() === film.nameEN.toLowerCase();
-    equal = equal || (possible.nameRU && film.nameRU && possible.nameRU.toLowerCase() === film.nameRU.toLowerCase());
+    var equal = compareNames(possible.nameEN, film.nameEN);
+    equal = equal || compareNames(possible.nameRU, film.nameRU);
     var year = parseInt(possible.year);
     var year2 = parseInt(film.year);
     return equal && year <= year2 + 1 && year >= year2 - 1;
+}
+function compareNames(name1, name2){
+    if (!name1 || !name2) return false;
+    return diacritics.replace(name1.toLowerCase())===diacritics.replace(name2.toLowerCase());
 }
 function jsonToFilm(json) {
     var film = {};
@@ -75,7 +79,7 @@ function searchLocal(possible) {
 
 function filmName(name) {
     if (!name) return name;
-    return name.replace(/\s+\(.*?\)$/, '');
+    return  diacritics.replace( name.replace(/\s+\(.*?\)$/, ''));
 }
 exports.humanize = humanize;
 function humanize(title) {
@@ -84,6 +88,7 @@ function humanize(title) {
     var names = head(title).split('/');
     result.nameRU = he.decode(names[0].trim());
     result.nameEN = names.length > 1 ? he.decode(names[names.length - 1].trim()) : '';
+    if (result.nameEN) result.nameEN = diacritics.replace(result.nameEN); 
     result.year = tail(title).match(/((19|20)\d{2})/)[1];
     return result;
 }
