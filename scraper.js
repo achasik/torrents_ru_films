@@ -73,10 +73,10 @@ var getTorrent = asyncLimit(function (torrent) {
 var run = async(function () {
     if(process.env.MORPH_DBINIT==='1')
         await(db.init());
-    //var trackers = await(db.trackers());
-    //trackers = await(_.map(trackers, getFeeds));
+    var trackers = await(db.trackers());
+    trackers = await(_.map(trackers, getFeeds));
     //db.close(function(){ console.log('DONE');});
-    //return trackers;
+    return trackers;
 });
 
  
