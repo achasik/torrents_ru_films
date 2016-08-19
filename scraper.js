@@ -64,7 +64,7 @@ var getTorrent = asyncLimit(function (torrent) {
     if (torrent.kinopoisk){
         await(db.torrents.insert(torrent));
         await(db.films.update(torrent.kinopoisk));
-        return torrent;
+        return null;
     }
     console.warn('Kinopoisk id not found', torrent.url, kinopoisk.humanize(torrent.title));
     return torrent;
@@ -79,7 +79,6 @@ var run = async(function () {
 });
 
 run()
-    .then(function(){console.log('DONE');})
-    .then(db.close)
-    //.then(process.exit)        
+    .then(function(){db.close()})
+    .then(function(){console.log('DONE')})
     .catch(function (err) { console.error(err); });

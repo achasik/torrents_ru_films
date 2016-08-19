@@ -3,6 +3,7 @@ var async = require('asyncawait/async');
 var await = require('asyncawait/await');
 var db = require('./dbAsync');
 var web = require('./web');
+var he = require('he');
 
 const BASE_URL = 'http://api.kinopoisk.cf/';
 
@@ -28,8 +29,9 @@ exports.search = async(function (torrent) {
     return film;
 });
 
-var searchApi = async(function (possible) {
-    var keyword = possible.nameEn ? possible.nameEn : possible.nameRU;
+var searchApi = async(function (possible, findRu) {    
+    var keyword = possible.nameEN ? possible.nameEN : possible.nameRU;
+    if (findRu && possible.nameRU) keyword = possible.nameRU;
     if (!keyword) throw new Error('Keyword is null' + possible);
     var url = BASE_URL + 'searchGlobal?keyword=' + keyword;
     var body = await(web.getAsync(url));
@@ -42,6 +44,7 @@ var searchApi = async(function (possible) {
     }    
     film = json.searchFilms.map(jsonToFilm).find(function(e){return filmsEqual(possible, e)});
     if (film) return getFilm(film.id);
+    if (!findRu && possible.nameRU) return searchApi(possible, true);
     return null;
 });
 function filmsEqual(possible, film) {
@@ -78,8 +81,8 @@ function humanize(title) {
     var result = {};
     title = title.replace(/^\[.*?\]\s+/, '');
     var names = head(title).split('/');
-    result.nameRU = names[0].trim();
-    result.nameEN = names.length > 1 ? names[names.length - 1].trim() : '';
+    result.nameRU = he.decode(names[0].trim());
+    result.nameEN = names.length > 1 ? he.decode(names[names.length - 1].trim()) : '';
     result.year = tail(title).match(/((19|20)\d{2})/)[1];
     return result;
 }
