@@ -51,7 +51,7 @@ exports.films = {
     }),
     insert: async(function (film) {
         return _db.runAsync("INSERT INTO films(id,name,nameRu,year,description,updated) VALUES(?,?,?,?,?,strftime('%s','now'))",
-            [film.id, film.name, film.nameRu, film.year, film.desc]);
+            [film.id, film.nameEN, film.nameRU, film.year, film.description]);
     })
 }
 

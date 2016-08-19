@@ -1,12 +1,14 @@
 'use strict';
 
 var async = require('asyncawait/async');
+var asyncLimit = async.mod({maxConcurrency: 2})
 var await = require('asyncawait/await');
 var _ = require('lodash');
 var cheerio = require("cheerio");
 var db = require('./dbAsync');
 var web = require('./web');
 var kinopoisk = require('./kinopoisk');
+
 
 var getFeeds = async(function (tracker) {
     tracker.feeds = await(db.feeds.get(tracker.id));
@@ -39,10 +41,10 @@ var getFeedEntries = async(function (feed) {
     console.log('Removed existing torrents',  count - feed.torrents.length, feed.url);
     
     feed.torrents = await(_.map(feed.torrents, getTorrent));
-    await(db.feeds.update(feed.id));
+    //await(db.feeds.update(feed.id));
     return feed;
 });
-var getTorrent = async(function (torrent) {
+var getTorrent = asyncLimit(function (torrent) {
     var body = await(web.getAsync(torrent.url));
     var $ = cheerio.load(body);
     var magnet = $('a[href*="magnet"]').attr('href');
@@ -54,12 +56,17 @@ var getTorrent = async(function (torrent) {
     if (link) {
         var id = link.match(/film\/(\d+)\//)[1];        
         id = await (kinopoisk.getFilm(id));
-        if (id) torrent.kinopoisk = id;
+        if (film) torrent.kinopoisk = film.id;
+    }else{
+        var film = await(kinopoisk.search(torrent));
+        if(film) torrent.kinopoisk = film.id;
     }
     if (torrent.kinopoisk){
         await(db.torrents.insert(torrent));
         await(db.films.update(torrent.kinopoisk));
+        return torrent;
     }
+    console.warn('Kinopoisk id not found', torrent.url, kinopoisk.humanize(torrent.title));
     return torrent;
 });
 
@@ -73,5 +80,6 @@ var run = async(function () {
 
 run()
     .then(function(){console.log('DONE');})
-    .then(db.close)        
+    .then(db.close)
+    //.then(process.exit)        
     .catch(function (err) { console.error(err); });

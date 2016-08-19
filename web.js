@@ -1,6 +1,6 @@
 var needle = require("needle");
 var Promise = require('bluebird');
-
+//needle.defaults({connection: 'Keep-Alive'});
 exports.getAsync = function(url){
     return new Promise(function(resolve,reject){
         needle.get(url, function (err, resp, body) {
