@@ -1,4 +1,7 @@
 {
+  "engines": {
+    "node": "4.5"
+  },
   "dependencies": {
     "asyncawait": "^1.0.6",
     "bluebird": "^3.4.1",
