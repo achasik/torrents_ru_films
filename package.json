@@ -1,4 +1,7 @@
 {
+  "name": "torrents_ru_films",
+  "description": "New films torrents from russian trackers",
+  "version": "0.0.1",
   "engines": {
     "node": "4.5"
   },

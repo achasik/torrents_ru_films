@@ -10,8 +10,19 @@ var _db = _db || new sqlite3.Database("data.sqlite");
 exports.close = function () {
     _db.close();
 };
-
-exports.init = async(function () {
+exports.init = function () {
+    console.log('Init DB');
+    var sql = fs.readFileSync('./init.sql', 'utf8');
+    _db.exec(sql, function (err) {
+        if (err) {
+            console.log(err);
+            throw err;
+        }
+        _db.close();
+        console.log('Init Done');
+    });
+}
+exports.initAsync = async(function () {
     console.log('Init DB');
     var sql = fs.readFileSync('./init.sql', 'utf8');
     var result = await(_db.execAsync(sql));
