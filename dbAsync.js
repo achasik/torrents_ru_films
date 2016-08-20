@@ -13,6 +13,7 @@ exports.close = function () {
 exports.init = function () {
     console.log('Init DB');
     var sql = fs.readFileSync('./init.sql', 'utf8');
+    console.log(sql);
     _db.exec(sql, function (err) {
         if (err) {
             console.log(err);
