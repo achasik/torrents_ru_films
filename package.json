@@ -12,6 +12,7 @@
     "he": "^1.1.0",
     "lodash": "^4.15.0",
     "needle": "latest",
+    "request": "^2.74.0",
     "sqlite3": "latest",
     "xml2js": "latest"
   }
