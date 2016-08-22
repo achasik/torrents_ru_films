@@ -25,7 +25,7 @@ exports.getFilm = getFilm;
 
 exports.search = async(function (torrent) {
     var possible = humanize(torrent.title);
-    var film = searchLocal(possible);
+    var film = await (searchLocal(possible));
     if (!film)
         film = await(searchApi(possible));
     return film;
@@ -76,9 +76,9 @@ function jsonToFilm(json) {
         throw new Error('Json api wrong' + JSON.stringify(json));
     return film;
 }
-function searchLocal(possible) {
-    return null;
-}
+var searchLocal = async(function (possible) {
+    return db.films.search(possible);
+})
 function isRu(str){
     return /а|е|и|у|о|ы|э|я|ю/.test(str);
 }

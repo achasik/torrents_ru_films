@@ -72,7 +72,11 @@ exports.films = {
     insert: async(function (film) {
         return _db.runAsync("INSERT INTO films(id,name,nameRu,year,description,updated) VALUES(?,?,?,?,?,strftime('%s','now'))",
             [film.id, film.nameEN, film.nameRU, film.year, film.description]);
-    })
+    }),
+    search: async(function(film){
+        return _db.getAsync("SELECT * FROM films WHERE ((name IS NOT NULL AND lower(name)=lower(?)) OR (nameRu IS NOT NULL AND lower(nameRu)=lower(?))) AND year BETWEEN ? AND ?",
+        [film.nameEN, film.NameRu, film.year-1, film.year+1]);
+    } )
 }
 
 
