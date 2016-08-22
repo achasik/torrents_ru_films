@@ -46,3 +46,5 @@ CREATE TABLE torrents(
 INSERT INTO trackers(name, active)  VALUES ('Rutracker',1),('RuTor',1),('Kinozal',1);
 INSERT INTO feeds(trackerId,name,url, active) VALUES (1,'Классика мирового кинематографа','http://feed.rutracker.cc/atom/f/187.atom',1);
 INSERT INTO feeds(trackerId,name,url, active) VALUES (1,'Фильмы 2016','http://feed.rutracker.cc/atom/f/2200.atom',1);
+INSERT INTO feeds(trackerId,name,url, active) VALUES (1,'Фильмы 2011-2015','http://feed.rutracker.cc/atom/f/2093.atom',1);
+INSERT INTO feeds(trackerId,name,url, active) VALUES (1,'Фильмы 2006-2010','http://feed.rutracker.cc/atom/f/2092.atom',1);
