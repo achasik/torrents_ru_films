@@ -77,7 +77,10 @@ function jsonToFilm(json) {
     return film;
 }
 var searchLocal = async(function (possible) {
+    //var result = await(db.films.search(possible));
+    //if (result) console.log('Found local', result.id);
     return db.films.search(possible);
+    //return result;
 })
 function isRu(str){
     return /а|е|и|у|о|ы|э|я|ю/.test(str);

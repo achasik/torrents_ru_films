@@ -55,7 +55,18 @@ exports.torrents = {
             [torrent.trackerId, torrent.id, torrent.kinopoisk, torrent.title, torrent.url, torrent.magnet]);
     })
 }
-
+exports.notfound = {
+    total: async(function(){
+        return _db.getAsync('SELECT COUNT(id) AS result FROM notfound');
+    }),
+    get: async(function (trackerId, id) {
+        return _db.getAsync('SELECT * FROM notfound WHERE trackerId=? AND id=?', [trackerId, id]);
+    }),
+    insert: async(function (torrent) {
+        return _db.runAsync("INSERT INTO notfound (trackerId,id,title,url,magnet) VALUES(?,?,?,?,?)",
+            [torrent.trackerId, torrent.id, torrent.title, torrent.url, torrent.magnet]);
+    })
+}
 exports.films = {
     lastUpdate: async (function(){
         return _db.getAsync('SELECT MAX(updated) AS result FROM films');

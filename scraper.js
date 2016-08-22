@@ -3,7 +3,7 @@
 var async = require('asyncawait/async');
 var asyncLimit = async.mod({ maxConcurrency: 2 })
 var await = require('asyncawait/await');
-var _ = require('lodash');
+//var _ = require('lodash');
 var cheerio = require("cheerio");
 var db = require('./dbAsync');
 var web = require('./web');
@@ -12,48 +12,39 @@ var kinopoisk = require('./kinopoisk');
 
 var getFeeds = async(function (tracker) {
     tracker.feeds = await(db.feeds.get(tracker.id));
-    tracker.feeds = await(_.map(tracker.feeds, getFeedEntries));
+    tracker.feeds = await(tracker.feeds.map(getFeedEntries));
     return tracker;
 });
 
 var getFeedEntries = async(function (feed) {
     var body = await(web.getAsync(feed.url));
-    if (!body.feed || !body.feed.entry || body.feed.entry.length === 0) {
-        console.warn("Wrong feed format or no entries " + feed.url);
-        return feed;
-    }
-    if (feed.updated && Date.parse(body.feed.updated) / 1000 < feed.updated) {
-        console.log("Feed is up to date", feed.url);
-        return feed;
-    }
-    feed.torrents = _.map(body.feed.entry, function (entry) {
-        return {
-            trackerId: feed.trackerId,
-            id: entry.link.$.href.match(/t=(\d+)/)[1],
-            title: entry.title._.trim(),
-            url: entry.link.$.href.replace('.org', '.net')
-        }
-    });
+
+    feed.torrents = web.xmlToTorrents(body, feed.trackerId);
     var count = feed.torrents.length;
     console.log('Torrents found', count, feed.url);
 
-    feed.torrents = await(_.filter(feed.torrents, function (torrent) { return !await(db.torrents.get(torrent.trackerId, torrent.id)) }));
+    feed.torrents = await(feed.torrents.filter(function (torrent) { return !await(db.torrents.get(torrent.trackerId, torrent.id)) }));
+    feed.torrents = await(feed.torrents.filter(function (torrent) { return !await(db.notfound.get(torrent.trackerId, torrent.id)) }));
     console.log('Removed existing torrents', count - feed.torrents.length, feed.url);
 
-    feed.torrents = await(_.map(feed.torrents, getTorrent));
+    feed.torrents = await(feed.torrents.map(getTorrent));
     //await(db.feeds.update(feed.id));
     return feed;
 });
 var getTorrent = asyncLimit(function (torrent) {
+    //var body = torrent.description; 
     var body = await(web.getAsync(torrent.url));
     var $ = cheerio.load(body);
     var magnet = $('a[href*="magnet"]').attr('href');
+    torrent.magnet = magnet ? magnet : '';
+
     if (!magnet)
         console.warn('magnet not Found', torrent.url);
     else
         torrent.magnet = magnet;
+
     var link = $('a[href*="kinopoisk"]').attr('href');
-	var re = /film\/(\d+)\/?/
+    var re = /film\/(\d+)\/?/
     if (link && re.test(link)) {
         let id = re.exec(link)[1];
         let film = await(kinopoisk.getFilm(id));
@@ -68,28 +59,32 @@ var getTorrent = asyncLimit(function (torrent) {
         return null;
     }
     console.warn('Kinopoisk id not found', torrent.url, JSON.stringify(kinopoisk.humanize(torrent.title)));
+    await(db.notfound.insert(torrent));
     return torrent;
 });
 
 var run = async(function () {
-	var lastUpdate = await(db.films.lastUpdate()).result;
-	var torrentsWas = await(db.torrents.total()).result;
+    var lastUpdate = await(db.films.lastUpdate()).result;
+    var torrentsWas = await(db.torrents.total()).result;
+    var notFoundWas =  await(db.notfound.total()).result;
     var trackers = await(db.trackers());
-    trackers = await(_.map(trackers, getFeeds));
-	var torrentsNow = await(db.torrents.total()).result;
-	var updated = await(db.films.updated(lastUpdate)).result;
-	console.log('Films updated', updated);
-	console.log('Torrents updated', torrentsNow - torrentsWas);
+    trackers = await(trackers.map (getFeeds));
+    var torrentsNow = await(db.torrents.total()).result;
+    var updated = await(db.films.updated(lastUpdate)).result;
+    var notFoundNow =  await(db.notfound.total()).result;
+    console.log('Films updated', updated);
+    console.log('Torrents updated', torrentsNow - torrentsWas);
+    console.log('Torrents not found', notFoundNow - notFoundWas);
     return trackers;
 });
 
-if (process.env.MORPH_DBINIT === '1'){
+if (process.env.MORPH_DBINIT === '1') {
     db.init();
-}    
-else{
+}
+else {
     run()
         .then(function () { db.close() })
         .then(function () { console.log('DONE') })
         .catch(function (err) { console.error(err); });
 }
-    
+
