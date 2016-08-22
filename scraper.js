@@ -72,11 +72,14 @@ var getTorrent = asyncLimit(function (torrent) {
 });
 
 var run = async(function () {
-    //if (process.env.MORPH_DBINIT === '1')
-    //    await(db.init());
+	var lastUpdate = await(db.films.lastUpdate()).result;
+	var torrentsWas = await(db.torrents.total()).result;
     var trackers = await(db.trackers());
     trackers = await(_.map(trackers, getFeeds));
-    //db.close(function(){ console.log('DONE');});
+	var torrentsNow = await(db.torrents.total()).result;
+	var updated = await(db.films.updated(lastUpdate)).result;
+	console.log('Films updated', updated);
+	console.log('Torrents updated', torrentsNow - torrentsWas);
     return trackers;
 });
 

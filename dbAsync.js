@@ -44,6 +44,9 @@ exports.feeds = {
 }
 
 exports.torrents = {
+    total: async(function(){
+        return _db.getAsync('SELECT COUNT(id) AS result FROM torrents');
+    }),
     get: async(function (trackerId, id) {
         return _db.getAsync('SELECT * FROM torrents WHERE trackerId=? AND id=?', [trackerId, id]);
     }),
@@ -54,6 +57,12 @@ exports.torrents = {
 }
 
 exports.films = {
+    lastUpdate: async (function(){
+        return _db.getAsync('SELECT MAX(updated) AS result FROM films');
+    }),
+    updated: async (function(last){
+        return _db.getAsync('SELECT COUNT(updated) AS result FROM films WHERE updated>?',[last]);
+    }),
     get: async(function (id) {
         return _db.getAsync('SELECT * FROM films WHERE id=?', [id]);
     }),

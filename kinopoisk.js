@@ -64,8 +64,8 @@ function jsonToFilm(json) {
     var film = {};
     if (json.id) film.id = json.id;
     if (json.filmID) film.id = json.filmID;
-    film.nameEN = web.sanitize(json.nameEN);
-    film.nameRU = web.sanitize(json.nameRU);
+    film.nameEN = web.sanitize(json.nameEN).replace(/\s+\(.*?\)$/, '');
+    film.nameRU = web.sanitize(json.nameRU).replace(/\s+\(.*?\)$/, '');
     if (!film.nameEN && !isRu(film.nameRU)){
         film.nameEN = film.nameRU;
         film.nameRU ='';
