@@ -1,5 +1,6 @@
 'use strict';
 var async = require('asyncawait/async');
+var asyncLimit = async.mod({ maxConcurrency: 1 });
 var await = require('asyncawait/await');
 var db = require('./dbAsync');
 var web = require('./web');
@@ -23,7 +24,7 @@ var getFilm = async(function (id) {
 });
 exports.getFilm = getFilm;
 
-exports.search = async(function (torrent) {
+exports.search = asyncLimit(function (torrent) {
     var possible = humanize(torrent.title);
     var film = await (searchLocal(possible));
     if (!film)

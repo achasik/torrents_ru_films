@@ -1,7 +1,7 @@
 'use strict';
 
 var async = require('asyncawait/async');
-var asyncLimit = async.mod({ maxConcurrency: 2 })
+var asyncLimit = async.mod({ maxConcurrency: 2 });
 var await = require('asyncawait/await');
 //var _ = require('lodash');
 var cheerio = require("cheerio");
@@ -16,7 +16,7 @@ var getFeeds = async(function (tracker) {
     return tracker;
 });
 
-var getFeedEntries = async(function (feed) {
+var getFeedEntries = asyncLimit(function (feed) {
     var body = await(web.getAsync(feed.url));
 
     feed.torrents = web.xmlToTorrents(body, feed.trackerId);
@@ -37,11 +37,8 @@ var getTorrent = asyncLimit(function (torrent) {
     var $ = cheerio.load(body);
     var magnet = $('a[href*="magnet"]').attr('href');
     torrent.magnet = magnet ? magnet : '';
-
     if (!magnet)
         console.warn('magnet not Found', torrent.url);
-    else
-        torrent.magnet = magnet;
 
     var link = $('a[href*="kinopoisk"]').attr('href');
     var re = /film\/(\d+)\/?/
@@ -53,7 +50,7 @@ var getTorrent = asyncLimit(function (torrent) {
         let film = await(kinopoisk.search(torrent));
         if (film) torrent.kinopoisk = film.id;
     }
-    if (torrent.kinopoisk) {
+    if (torrent.kinopoisk && torrent.magnet) {
         await(db.torrents.insert(torrent));
         await(db.films.update(torrent.kinopoisk));
         return null;
