@@ -51,7 +51,7 @@ CREATE TABLE notfound(
 	url  TEXT NOT NULL,
 	magnet TEXT NOT NULL,	
 	PRIMARY KEY (trackerId, id),
-	FOREIGN KEY(trackerId) REFERENCES trackers(id),
+	FOREIGN KEY(trackerId) REFERENCES trackers(id)
 );
 
 INSERT INTO trackers(name, active)  VALUES ('Rutracker',1),('RuTor',1),('Kinozal',1);
