@@ -13,7 +13,7 @@ exports.close = function () {
 exports.init = function () {
     console.log('Init DB');
     var sql = fs.readFileSync('./init.sql', 'utf8');
-    console.log(sql);
+    //console.log(sql);
     _db.exec(sql, function (err) {
         if (err) {
             console.log(err);
@@ -81,7 +81,7 @@ exports.films = {
         return _db.runAsync("UPDATE films SET updated=strftime('%s','now') WHERE id=?", [id]);
     }),
     insert: async(function (film) {
-        return _db.runAsync("INSERT INTO films(id,name,nameRu,year,description,updated) VALUES(?,?,?,?,?,strftime('%s','now'))",
+        return _db.runAsync("INSERT OR REPLACE INTO films(id,name,nameRu,year,description,updated) VALUES(?,?,?,?,?,strftime('%s','now'))",
             [film.id, film.nameEN, film.nameRU, film.year, film.description]);
     }),
     search: async(function(film){

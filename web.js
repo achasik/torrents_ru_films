@@ -1,4 +1,6 @@
 var needle = require("needle");
+var async = require('asyncawait/async');
+var await = require('asyncawait/await');
 var Promise = require('bluebird');
 var he = require('he');
 var diacritics = require('./diacritics');
@@ -27,6 +29,12 @@ function getAsync(url) {
         });
     });
 }
+exports.getJson = async(function(url){
+    var body = await(getAsync(url));
+    if(body) return JSON.parse(body);
+    return (null); 
+});
+
 function getJson(url) {
     return new Promise(function (resolve, reject) {
         needle.get(url, function (err, resp, body) {
