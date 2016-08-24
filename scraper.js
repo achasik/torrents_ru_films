@@ -1,7 +1,7 @@
 'use strict';
 
 var async = require('asyncawait/async');
-var asyncLimit = async.mod({ maxConcurrency: 2 });
+var asyncLimit = async.mod({ maxConcurrency: 3 });
 var await = require('asyncawait/await');
 //var _ = require('lodash');
 var cheerio = require("cheerio");
@@ -63,20 +63,21 @@ var getTorrent = asyncLimit(function (torrent) {
 var run = async(function () {
     var lastUpdate = await(db.films.lastUpdate()).result;
     var torrentsWas = await(db.torrents.total()).result;
-    var notFoundWas =  await(db.notfound.total()).result;
+    var notFoundWas = await(db.notfound.total()).result;
     var trackers = await(db.trackers());
-    trackers = await(trackers.map (getFeeds));
+    trackers = await(trackers.map(getFeeds));
     var torrentsNow = await(db.torrents.total()).result;
     var updated = await(db.films.updated(lastUpdate)).result;
-    var notFoundNow =  await(db.notfound.total()).result;
+    var notFoundNow = await(db.notfound.total()).result;
     console.log('Films updated', updated);
     console.log('Torrents updated', torrentsNow - torrentsWas);
     console.log('Torrents not found', notFoundNow - notFoundWas);
     return trackers;
 });
 
-if (process.env.MORPH_DBINIT === '1') {
-    db.init();
+let script = process.env.MORPH_SCRIPT
+if (script) {
+    db.init(script);
 }
 else {
     run()

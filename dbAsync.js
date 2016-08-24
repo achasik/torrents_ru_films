@@ -10,9 +10,9 @@ var _db = _db || new sqlite3.Database("data.sqlite");
 exports.close = function () {
     _db.close();
 };
-exports.init = function () {
-    console.log('Init DB');
-    var sql = fs.readFileSync('./init.sql', 'utf8');
+exports.init = function (name) {
+    console.log('Exec DB script '+ name);
+    var sql = fs.readFileSync('./'+name+'.sql', 'utf8');
     //console.log(sql);
     _db.exec(sql, function (err) {
         if (err) {
@@ -20,7 +20,7 @@ exports.init = function () {
             throw err;
         }
         _db.close();
-        console.log('Init Done');
+        console.log('Done');
     });
 }
 exports.initAsync = async(function () {

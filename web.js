@@ -18,10 +18,11 @@ exports.decode = myDecode;
 //exports.diacriticsReplace = diacriticsReplace;
 exports.sanitize = sanitize;
 
-function getAsync(url) {
+function getAsync(url, retry) {
     return new Promise(function (resolve, reject) {
         needle.get(url, function (err, resp, body) {
             if (err) {
+                if(!retry) return getAsync(url, true);
                 console.error('Error getting url', url, err);
                 return reject(err);
             }
@@ -29,16 +30,18 @@ function getAsync(url) {
         });
     });
 }
+/*
 exports.getJson = async(function(url){
     var body = await(getAsync(url));
     if(body) return JSON.parse(body);
-    return (null); 
+    return null; 
 });
-
-function getJson(url) {
+*/
+function getJson(url, retry) {
     return new Promise(function (resolve, reject) {
         needle.get(url, function (err, resp, body) {
             if (err) {
+                if(!retry) return getJson(url, true);
                 console.error('Error getting url', url, err);
                 return reject(err);
             }

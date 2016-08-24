@@ -62,7 +62,3 @@ INSERT INTO feeds(trackerId,name,url, active) VALUES (1,'Фильмы 2006-2010'
 INSERT INTO feeds(trackerId,name,url, active) VALUES (1,'Фильмы 2001-2005','http://feed.rutracker.cc/atom/f/2091.atom',1);
 INSERT INTO feeds(trackerId,name,url, active) VALUES (2,'Зарубежные фильмы','http://super-tor.net/rss.php?full=1',1);
 INSERT INTO feeds(trackerId,name,url, active) VALUES (2,'Наши фильмы','http://super-tor.net/rss.php?full=5',1);
-
-INSERT INTO feeds(trackerId,name,url, active) VALUES (1,'Фильмы 1991-2000','http://feed.rutracker.cc/atom/f/2221.atom',1);
-INSERT INTO feeds(trackerId,name,url, active) VALUES (1,'Фильмы до 1990 года','http://feed.rutracker.cc/atom/f/2090.atom',1);
-INSERT INTO feeds(trackerId,name,url, active) VALUES (1,'Наше кино','http://feed.rutracker.cc/atom/f/22.atom',1);
