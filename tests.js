@@ -50,6 +50,12 @@ var testDb = async(function () {
     console.log('Done Testing Db');
 
 });
+var testSearch = async(function(){
+    console.log('Testing Search');
+    var result = await(kinopoisk.search({ title: 'Паутина / The Cobweb (Винсенте Миннелли / Vincente Minnelli) [1955, США, драма, DVDRip] VO (fiendover) + Original Eng + Sub Rus (dhreilly) [2.19 GB]' }));
+    console.log('Done Testing Search');
+});
 testHumanize();
 testDb().catch(function (err) { console.error(err); });
+testSearch();
 

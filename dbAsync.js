@@ -23,12 +23,14 @@ exports.init = function (name) {
         console.log('Done');
     });
 }
+/*
 exports.initAsync = async(function () {
     console.log('Init DB');
     var sql = fs.readFileSync('./init.sql', 'utf8');
     var result = await(_db.execAsync(sql));
     console.log('Init Done');
 });
+*/
 
 exports.trackers = async(function () {
     return _db.allAsync('SELECT * FROM trackers WHERE active');
@@ -85,8 +87,14 @@ exports.films = {
             [film.id, film.nameEN, film.nameRU, film.year, film.description]);
     }),
     search: async(function(film){
-        return _db.getAsync("SELECT * FROM films WHERE ((name IS NOT NULL AND lower(name)=lower(?)) OR (nameRu IS NOT NULL AND lower(nameRu)=lower(?))) AND year BETWEEN ? AND ?",
-        [film.nameEN, film.NameRu, film.year-1, film.year+1]);
+        let year = parseInt(film.year);
+        let sql = 'SELECT * FROM films WHERE '+
+        "((name <>'' AND lower(name)='"+film.nameEN.toLowerCase()+"') "+
+        "OR (nameRu <>'' AND nameRu='"+ film.nameRU+"')) "+
+        'AND year BETWEEN '+(year-1)+' AND '+(year+1) 
+        //return _db.getAsync("SELECT * FROM films WHERE ((name IS NOT NULL AND lower(name)=lower(?)) OR (nameRu IS NOT NULL AND lower(nameRu)=lower(?))) AND year BETWEEN ? AND ?",
+        //[film.nameEN, film.NameRU, film.year-1, film.year+1]);
+        return _db.getAsync(sql);
     } )
 }
 
