@@ -10,7 +10,7 @@ var web = require('./web');
 var kinopoisk = require('./kinopoisk');
 
 
-var getFeeds = async(function (tracker) {
+var getFeeds = asyncLimit(function (tracker) {
     tracker.feeds = await(db.feeds.get(tracker.id));
     tracker.feeds = await(tracker.feeds.map(getFeedEntries));
     return tracker;
