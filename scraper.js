@@ -1,7 +1,7 @@
 'use strict';
 
 var async = require('asyncawait/async');
-var asyncLimit = async.mod({ maxConcurrency: 3 });
+var asyncLimit = async.mod({ maxConcurrency: 1 });
 var await = require('asyncawait/await');
 //var _ = require('lodash');
 var cheerio = require("cheerio");
