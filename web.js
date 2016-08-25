@@ -13,6 +13,7 @@ needle.defaults({
 
 exports.getAsync = getAsync;
 exports.getJson = getJson;
+//exports.getJsonWithRetry = getJsonWithRetry;
 exports.xmlToTorrents = xmlToTorrents;
 exports.decode = myDecode;
 //exports.diacriticsReplace = diacriticsReplace;
@@ -41,7 +42,7 @@ function getJson(url, retry) {
     return new Promise(function (resolve, reject) {
         needle.get(url, function (err, resp, body) {
             if (err) {
-                if(!retry) return getJson(url, true);
+                if(!retry) return resolve(null);
                 console.error('Error getting url', url, err);
                 return reject(err);
             }
@@ -49,6 +50,11 @@ function getJson(url, retry) {
         });
     });
 }
+exports.getJsonWithRetry = async(function (url) {
+    var json = await(getJson(url));
+    if (json) return json;
+    return getJson(url,true);
+});
 function xmlToTorrents(xml, trackerId) {
     var torrents = [];
     if (xml.feed) {
