@@ -41,7 +41,6 @@ var testDb = async(function () {
     assert(result, 'nameRu', '');
     assert(result, 'name', 'Eran trece');
     assert(result, 'year', 1931);
-    console.log('Done Testing Db');
 
     result = await(db.films.search({ nameEN: '', nameRU: 'Пока мы живы', year: '2009' }));
     assert(result, 'nameRu', 'Пока мы живы');
@@ -53,9 +52,20 @@ var testDb = async(function () {
 var testSearch = async(function(){
     console.log('Testing Search');
     var result = await(kinopoisk.search({ title: 'Паутина / The Cobweb (Винсенте Миннелли / Vincente Minnelli) [1955, США, драма, DVDRip] VO (fiendover) + Original Eng + Sub Rus (dhreilly) [2.19 GB]' }));
+    assert(result, 'nameRu', 'Паутина');
+    assert(result, 'name', 'The Cobweb');
+    assert(result, 'year', 1955);
+    assert(result, 'id', 10763); 
+    
+    result = await(kinopoisk.search({ title: 'Нулевые парни / Живые мишени / The Zero Boys (Нико Масторакис / Nico Mastorakis) [1986, США, ужасы, триллер, слэшер, HDRip] VO (sanchez) [1.46 GB]' }));
+    assert(result, 'nameRu', 'Нулевые ребята');
+    assert(result, 'name', 'The Zero Boys');
+    assert(result, 'year', 1986);
+    assert(result, 'id', 36466); 
     console.log('Done Testing Search');
 });
 testHumanize();
-testDb().catch(function (err) { console.error(err); });
-testSearch();
+testDb()
+    .then(testSearch)
+    .catch(function (err) { console.error(err); });
 

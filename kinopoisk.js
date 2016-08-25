@@ -36,7 +36,9 @@ var searchApi = async(function (possible, findRu) {
     var keyword = possible.nameEN ? possible.nameEN : possible.nameRU;
     if (findRu && possible.nameRU) keyword = possible.nameRU;
     if (!keyword) throw new Error('Keyword is null' + possible);
-    var url = BASE_URL + 'searchGlobal?keyword=' + keyword + '&rand=' + Math.floor((Math.random() * 1000) + 1);
+    keyword = keyword.split(' ').join(',');
+    //var url = BASE_URL + 'searchGlobal?keyword=' + keyword + '&rand=' + Math.floor((Math.random() * 1000) + 1);
+    var url = BASE_URL + 'searchFilms?keyword=' + keyword + '&rand=' + Math.floor((Math.random() * 1000) + 1);
     var json = await(web.getJson(url));
     if (json.youmean && json.youmean.type === 'KPFilm') {
         let film = jsonToFilm(json.youmean);
