@@ -51,7 +51,7 @@ exports.getJson = async(function (url) {
 exports.getAsync = async(function (url) {
     let body = await(needleGet(url));
     if (body) return body;
-    return get(url,true);
+    return needleGet(url,true);
 });
 
 function xmlToTorrents(xml, trackerId) {
