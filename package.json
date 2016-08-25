@@ -8,6 +8,7 @@
   "dependencies": {
     "asyncawait": "^1.0.6",
     "cheerio": "latest",
+    "bluebird": "^3.4.1",
     "he": "^1.1.0",
     "needle": "latest",
     "sqlite3": "latest",
