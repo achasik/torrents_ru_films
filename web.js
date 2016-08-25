@@ -1,7 +1,9 @@
+'use strict';
+
 var needle = require("needle");
 var async = require('asyncawait/async');
 var await = require('asyncawait/await');
-var Promise = require('bluebird');
+//var Promise = require('bluebird');
 var he = require('he');
 var diacritics = require('./diacritics');
 
@@ -11,19 +13,15 @@ needle.defaults({
     follow: 2
  });
 
-exports.getAsync = getAsync;
-exports.getJson = getJson;
-//exports.getJsonWithRetry = getJsonWithRetry;
 exports.xmlToTorrents = xmlToTorrents;
 exports.decode = myDecode;
-//exports.diacriticsReplace = diacriticsReplace;
 exports.sanitize = sanitize;
 
-function getAsync(url, retry) {
+function needleGet(url, retry) {
     return new Promise(function (resolve, reject) {
         needle.get(url, function (err, resp, body) {
             if (err) {
-                if(!retry) return getAsync(url, true);
+                if(!retry) return resolve(null);
                 console.error('Error getting url', url, err);
                 return reject(err);
             }
@@ -31,14 +29,7 @@ function getAsync(url, retry) {
         });
     });
 }
-/*
-exports.getJson = async(function(url){
-    var body = await(getAsync(url));
-    if(body) return JSON.parse(body);
-    return null; 
-});
-*/
-function getJson(url, retry) {
+function needleGetJson(url, retry) {
     return new Promise(function (resolve, reject) {
         needle.get(url, function (err, resp, body) {
             if (err) {
@@ -50,11 +41,19 @@ function getJson(url, retry) {
         });
     });
 }
-exports.getJsonWithRetry = async(function (url) {
-    var json = await(getJson(url));
+
+exports.getJson = async(function (url) {
+    var json = await(needleGetJson(url));
     if (json) return json;
-    return getJson(url,true);
+    return needleGetJson(url,true);
 });
+
+exports.getAsync = async(function (url) {
+    let body = await(needleGet(url));
+    if (body) return body;
+    return get(url,true);
+});
+
 function xmlToTorrents(xml, trackerId) {
     var torrents = [];
     if (xml.feed) {
@@ -87,9 +86,7 @@ function diacriticsReplace(str) {
 }
 function sanitize(str) {
     var result = str.replace(/[l|la]*'|[l|la]*&#039;/ig, '').trim();
-    //result = result.replace(/l'/ig, '');
     result = result.replace(/la /ig, ' ').trim();
-    //result = result.replace('la ', ' ');
     result = myDecode(result);
     result = diacriticsReplace(result);
     result = result.replace(/\s+/g, ' ').trim();

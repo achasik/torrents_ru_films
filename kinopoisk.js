@@ -37,7 +37,7 @@ var searchApi = async(function (possible, findRu) {
     if (findRu && possible.nameRU) keyword = possible.nameRU;
     if (!keyword) throw new Error('Keyword is null' + possible);
     var url = BASE_URL + 'searchGlobal?keyword=' + keyword + '&rand=' + Math.floor((Math.random() * 1000) + 1);
-    var json = await(web.getJsonWithRetry(url));
+    var json = await(web.getJson(url));
     if (json.youmean && json.youmean.type === 'KPFilm') {
         let film = jsonToFilm(json.youmean);
         if (filmsEqual(possible, film)) return getFilm(film.id);
