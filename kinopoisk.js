@@ -44,7 +44,8 @@ var searchApi = async(function (possible, findRu) {
         let film = jsonToFilm(json.youmean);
         if (filmsEqual(possible, film)) return getFilm(film.id);
     }
-    var film = json.searchFilms
+    var films = json.searchFilms ? json.searchFilms : []
+    var film = films
         .filter(function (e) { return e.type === 'KPFilm' })
         .map(jsonToFilm)
         .find(function (e) { return filmsEqual(possible, e) });
