@@ -33,18 +33,18 @@ exports.search = asyncLimit(function (torrent) {
 });
 
 var searchApi = async(function (possible, findRu) {
-    var keyword = possible.nameEN ? possible.nameEN : possible.nameRU;
+    var keyword = possible.nameEN || possible.nameRU;
     if (findRu && possible.nameRU) keyword = possible.nameRU;
     if (!keyword) throw new Error('Keyword is null' + possible);
     keyword = keyword.split(' ').join(',');
-    //var url = BASE_URL + 'searchGlobal?keyword=' + keyword + '&rand=' + Math.floor((Math.random() * 1000) + 1);
-    var url = BASE_URL + 'searchFilms?keyword=' + keyword + '&rand=' + Math.floor((Math.random() * 1000) + 1);
+    var url = BASE_URL + 'searchGlobal?keyword=' + keyword + '&rand=' + Math.floor((Math.random() * 1000) + 1);
+    //var url = BASE_URL + 'searchFilms?keyword=' + keyword + '&rand=' + Math.floor((Math.random() * 1000) + 1);
     var json = await(web.getJson(url));
     if (json.youmean && json.youmean.type === 'KPFilm') {
         let film = jsonToFilm(json.youmean);
         if (filmsEqual(possible, film)) return getFilm(film.id);
     }
-    var films = json.searchFilms ? json.searchFilms : []
+    var films = json.searchFilms || []
     var film = films
         .filter(function (e) { return e.type === 'KPFilm' })
         .map(jsonToFilm)

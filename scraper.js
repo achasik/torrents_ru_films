@@ -50,6 +50,7 @@ var getTorrent = asyncLimit(function (torrent) {
         let film = await(kinopoisk.search(torrent));
         if (film) torrent.kinopoisk = film.id;
     }
+    torrent.title = web.sanitize(torrent.title);
     if (torrent.kinopoisk && torrent.magnet) {
         await(db.torrents.insert(torrent));
         await(db.films.update(torrent.kinopoisk));

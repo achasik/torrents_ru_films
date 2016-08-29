@@ -62,6 +62,12 @@ var testSearch = async(function(){
     assert(result, 'name', 'The Zero Boys');
     assert(result, 'year', 1986);
     assert(result, 'id', 36466); 
+    
+    result = await(kinopoisk.search({ title: 'С чертями шутки плохи / S &#269;erty nejsou &#382;erty (Гинек Бочан / Hynek Bocan) [1984, Чехословакия, сказка, семейный, экранизация, DVDRip] Original Cze + Sub Rus (yabloko1980) [1.37 GB]' }));
+    assert(result, 'nameRu', 'С чертями шутки плохи');
+    assert(result, 'name', 'S certy nejsou zerty');
+    assert(result, 'year', 1985);
+    assert(result, 'id', 51992); 
     console.log('Done Testing Search');
 });
 testHumanize();
