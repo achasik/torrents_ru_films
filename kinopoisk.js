@@ -19,6 +19,7 @@ var getFilm = async(function (id) {
         return null;
     }
     var film = jsonToFilm(json);
+    if (!film) return null;
     var result = await(db.films.insert(film));
     return film;
 });
@@ -54,6 +55,7 @@ var searchApi = async(function (possible, findRu) {
     return null;
 });
 function filmsEqual(possible, film) {
+    if (!possible || !film) return false;
     var equal = compareNames(possible.nameEN, film.nameEN);
     equal = equal || compareNames(possible.nameRU, film.nameRU);
     var year = parseInt(possible.year);
@@ -76,8 +78,10 @@ function jsonToFilm(json) {
     }
     film.year = json.year;
     film.description = json.description ? web.sanitize(json.description) : '';
-    if (!film.id || (!film.nameEN && !film.nameRU))
-        throw new Error('Json api wrong' + JSON.stringify(json));
+    if (!film.id || (!film.nameEN && !film.nameRU) || !film.year){
+        console.warn('Json api wrong' + JSON.stringify(film));
+        return null;
+    }        
     return film;
 }
 var searchLocal = async(function (possible) {
