@@ -3,7 +3,7 @@
   "description": "New films torrents from russian trackers",
   "version": "0.0.1",
   "engines": {
-    "node": "4.5"
+    "node": "6.5"
   },
   "dependencies": {
     "asyncawait": "^1.0.6",
