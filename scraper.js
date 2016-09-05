@@ -37,8 +37,11 @@ var getTorrent = asyncLimit(function (torrent) {
     var $ = cheerio.load(body);
     var magnet = $('a[href*="magnet"]').attr('href');
     torrent.magnet = magnet ? magnet : '';
-    if (!magnet)
+    if (!magnet) {
         console.warn('magnet not Found', torrent.url);
+        await(db.notfound.insert(torrent));
+        return torrent;
+    }
 
     var link = $('a[href*="kinopoisk"]').attr('href');
     var re = /film\/(\d+)\/?/
@@ -62,6 +65,7 @@ var getTorrent = asyncLimit(function (torrent) {
 });
 
 var run = async(function () {
+    let resp = await(web.Login());
     var lastUpdate = await(db.films.lastUpdate()).result;
     var torrentsWas = await(db.torrents.total()).result;
     var notFoundWas = await(db.notfound.total()).result;
