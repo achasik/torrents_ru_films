@@ -40,6 +40,7 @@ var getTorrent = asyncLimit(function (torrent) {
     if (!magnet && torrent.trackerId===3)
         magnet = await(web.getKinozalMagnet(torrent));
     if (!magnet) {
+        torrent.magnet ='notfound';
         console.warn('magnet not Found', torrent.url);
         await(db.notfound.insert(torrent));
         return torrent;

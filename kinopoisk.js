@@ -26,21 +26,23 @@ var getFilm = async(function (id) {
 exports.getFilm = getFilm;
 
 exports.search = asyncLimit(function (torrent) {
-    var possible = humanize(torrent);
-    var film = await(searchLocal(possible));
+    //var possible = humanize(torrent);
+    var film = await(searchLocal(torrent));
     if (!film)
-        film = await(searchApi(possible));
+        film = await(searchApi(torrent));
     return film;
 });
 
-var searchApi = async(function (possible, findRu) {
+var searchApi = async(function (torrent, findRu) {
+    let possible = humanize(torrent);
     var keyword = possible.nameEN || possible.nameRU;
     if (findRu && possible.nameRU) keyword = possible.nameRU;
     if (!keyword) throw new Error('Keyword is null' + possible);
-    keyword = keyword.split(' ').join(',');
-    keyword = he.encode(keyword);
-    var url = BASE_URL + 'searchGlobal?keyword=' + keyword + '&rand=' + Math.floor((Math.random() * 1000) + 1);
-    //var url = BASE_URL + 'searchFilms?keyword=' + keyword + '&rand=' + Math.floor((Math.random() * 1000) + 1);
+    keyword = keyword.split(' ').join('+');
+    keyword = encodeURI(keyword);
+    //keyword = he.encode(keyword);
+    //var url = BASE_URL + 'searchGlobal?keyword=' + keyword + '&rand=' + Math.floor((Math.random() * 1000) + 1);
+    var url = BASE_URL + 'searchFilms?keyword=' + keyword + '&rand=' + Math.floor((Math.random() * 1000) + 1);
     var json = await(web.getJson(url)) || {};
     if (json.youmean && json.youmean.type === 'KPFilm') {
         let film = jsonToFilm(json.youmean);
@@ -52,9 +54,11 @@ var searchApi = async(function (possible, findRu) {
         .map(jsonToFilm)
         .find(function (e) { return filmsEqual(possible, e) });
     if (film) return getFilm(film.id);
-    if (!findRu && possible.nameRU) return searchApi(possible, true);
+    if (!findRu && possible.nameRU) return searchApi(torrent, true);
     return null;
 });
+exports.searchApi = searchApi;
+
 function filmsEqual(possible, film) {
     if (!possible || !film) return false;
     var equal = compareNames(possible.nameEN, film.nameEN);
@@ -85,7 +89,8 @@ function jsonToFilm(json) {
     }
     return film;
 }
-var searchLocal = async(function (possible) {
+var searchLocal = async(function (torrent) {
+    let possible = humanize(torrent);
     //var result = await(db.films.search(possible));
     //if (result) console.log('Found local', result.id);
     return db.films.search(possible);
@@ -111,8 +116,10 @@ function humanize(torrent) {
         result.year = tail(title).match(/((19|20)\d{2})/)[1];
     }else{
         let names = title.split('/');
-        result.nameRu = web.sanitize(names[0].trim());
+        result.nameRU = web.sanitize(names[0].trim());
         if (names.length>1) result.nameEN = web.sanitize(names[1].trim());
+        if (result.nameEN &&(isRu(result.nameEN) || /^(19|20)\d{2}$/.test(result.nameEN)))
+            result.nameEN=''
         result.year = title.match(/((19|20)\d{2})/)[1];
     }
     return result;
