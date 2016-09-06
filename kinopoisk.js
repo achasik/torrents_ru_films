@@ -4,7 +4,7 @@ var asyncLimit = async.mod({ maxConcurrency: 1 });
 var await = require('asyncawait/await');
 var db = require('./dbAsync');
 var web = require('./web');
-//var he = require('he');
+var he = require('he');
 //var diacritics = require('./diacritics');
 const BASE_URL = 'http://api.kinopoisk.cf/';
 
@@ -38,6 +38,7 @@ var searchApi = async(function (possible, findRu) {
     if (findRu && possible.nameRU) keyword = possible.nameRU;
     if (!keyword) throw new Error('Keyword is null' + possible);
     keyword = keyword.split(' ').join(',');
+    keyword = he.encode(keyword);
     var url = BASE_URL + 'searchGlobal?keyword=' + keyword + '&rand=' + Math.floor((Math.random() * 1000) + 1);
     //var url = BASE_URL + 'searchFilms?keyword=' + keyword + '&rand=' + Math.floor((Math.random() * 1000) + 1);
     var json = await(web.getJson(url)) || {};
