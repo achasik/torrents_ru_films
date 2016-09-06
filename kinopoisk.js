@@ -84,7 +84,7 @@ function jsonToFilm(json) {
     film.year = json.year;
     film.description = json.description ? web.sanitize(json.description) : '';
     if (!film.id || (!film.nameEN && !film.nameRU) || !film.year) {
-        console.warn('Json api wrong' + JSON.stringify(film));
+        //console.warn('Json api wrong' + JSON.stringify(film));
         return null;
     }
     return film;
