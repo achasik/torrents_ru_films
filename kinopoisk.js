@@ -26,7 +26,7 @@ var getFilm = async(function (id) {
 exports.getFilm = getFilm;
 
 exports.search = asyncLimit(function (torrent) {
-    var possible = humanize(torrent.title);
+    var possible = humanize(torrent);
     var film = await(searchLocal(possible));
     if (!film)
         film = await(searchApi(possible));
@@ -78,10 +78,10 @@ function jsonToFilm(json) {
     }
     film.year = json.year;
     film.description = json.description ? web.sanitize(json.description) : '';
-    if (!film.id || (!film.nameEN && !film.nameRU) || !film.year){
+    if (!film.id || (!film.nameEN && !film.nameRU) || !film.year) {
         console.warn('Json api wrong' + JSON.stringify(film));
         return null;
-    }        
+    }
     return film;
 }
 var searchLocal = async(function (possible) {
@@ -98,14 +98,22 @@ function filmName(name) {
     return web.diacriticsReplace(name.replace(/\s+\(.*?\)$/, ''));
 }
 exports.humanize = humanize;
-function humanize(title) {
+function humanize(torrent) {
+    var title = torrent.title;
     var result = {};
     title = title.replace(/^\[.*?\]\s+/, '');
-    var names = head(title).split('/');
-    result.nameRU = web.sanitize(names[0].trim());
-    result.nameEN = names.length > 1 ? web.sanitize(names[names.length - 1].trim()) : '';
-    //if (result.nameEN) result.nameEN = diacritics.replace(result.nameEN); 
-    result.year = tail(title).match(/((19|20)\d{2})/)[1];
+    //var split = splitPos(title);
+    if (torrent.trackerId !=3) {
+        let names = head(title).split('/');
+        result.nameRU = web.sanitize(names[0].trim());
+        result.nameEN = names.length > 1 ? web.sanitize(names[names.length - 1].trim()) : '';
+        result.year = tail(title).match(/((19|20)\d{2})/)[1];
+    }else{
+        let names = title.split('/');
+        result.nameRu = web.sanitize(names[0].trim());
+        if (names.length>1) result.nameEN = web.sanitize(names[1].trim());
+        result.year = title.match(/((19|20)\d{2})/)[1];
+    }
     return result;
 }
 
@@ -118,7 +126,7 @@ function tail(title) {
 function splitPos(title) {
     var delims = ['[', '('];
     var pos = title.split('').findIndex(function (c) { return delims.indexOf(c) >= 0 });
-    if (pos < 0) throw new Error('Splitter not found in' + title);
+    //if (pos < 0) throw new Error('Splitter not found in' + title);
     return pos;
 }
 

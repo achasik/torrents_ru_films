@@ -1,6 +1,7 @@
 'use strict';
 
 var needle = require("needle");
+var cheerio = require('cheerio');
 var async = require('asyncawait/async');
 var await = require('asyncawait/await');
 //var Promise = require('bluebird');
@@ -8,10 +9,12 @@ var he = require('he');
 var diacritics = require('./diacritics');
 
 needle.defaults({ 
-    connection: 'Keep-Alive',
+    //connection: 'Keep-Alive',
     user_agent: 'Mozilla/5.0 (Windows NT 6.3; WOW64; rv:36.0) Gecko/20100101 Firefox/36.0',
     follow: 2
  });
+
+let headers={};
 
 exports.xmlToTorrents = xmlToTorrents;
 exports.decode = myDecode;
@@ -19,7 +22,7 @@ exports.sanitize = sanitize;
 
 function needleGet(url, retry) {
     return new Promise(function (resolve, reject) {
-        needle.get(url, function (err, resp, body) {
+        needle.get(url, headers, function (err, resp, body) {
             if (err) {
                 if(!retry) return resolve(null);
                 console.error('Error getting url', url, err);
@@ -31,7 +34,7 @@ function needleGet(url, retry) {
 }
 function needleGetJson(url, retry) {
     return new Promise(function (resolve, reject) {
-        needle.get(url, function (err, resp, body) {
+        needle.get(url, headers, function (err, resp, body) {
             if (err) {
                 if(!retry) return resolve(null);
                 console.error('Error getting url', url, err);
@@ -41,6 +44,21 @@ function needleGetJson(url, retry) {
         });
     });
 }
+function getCookies () {
+     return new Promise(function (resolve, reject) {
+         needle.get('http://kinozal.me',function (err, resp, body) {
+             if (err) return reject(err);
+             let cookies = resp.cookies;
+             needle.post('http://kinozal.me/takelogin.php',
+                {username:'andy089', password:'0897sa'},
+                {headers:{cookies: cookies}, follow:0},
+                function(err,resp, body){
+                    if(err) return reject(err);
+                    resolve(resp.cookies);
+                });
+         });
+     });
+ }
 
 exports.getJson = async(function (url) {
     var json = await(needleGetJson(url));
@@ -49,11 +67,22 @@ exports.getJson = async(function (url) {
 });
 
 exports.getAsync = async(function (url) {
+    if(url.indexOf('kinozal')>0 && !headers.cookies){
+        let cookies = await(getCookies());
+        headers ={cookies: cookies};
+    }
     let body = await(needleGet(url));
     if (body) return body;
     return needleGet(url,true);
 });
+exports.getKinozalMagnet = async(function(torrent){
+    let url = `http://kinozal.me/get_srv_details.php?id=${torrent.id}&action=2`
+    let body = await(needleGet(url));
+    let re =/<li>Инфо хеш: (.*?)<\/li>/;
+    if (!re.test(body)) return '';
+    return `magnet:?xt=urn:btih:${re.exec(body)[1]}`;
 
+});
 function xmlToTorrents(xml, trackerId) {
     var torrents = [];
     if (xml.feed) {
@@ -75,6 +104,17 @@ function xmlToTorrents(xml, trackerId) {
                 description: entry.description
             }
         });
+    }else{
+        let $ =  cheerio.load(xml);
+        torrents =$('td[class="nam"] a').map((i,item)=>{
+            let href =$(item).attr('href');
+            return{
+                trackerId: trackerId,
+                id: href.match(/(\d+)/)[1],
+                title: $(item).text().trim(),
+                url: 'http://kinozal.me'+href
+            }
+        }).get();
     }
     return torrents;
 }

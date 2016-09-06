@@ -8,6 +8,7 @@ var cheerio = require("cheerio");
 var db = require('./dbAsync');
 var web = require('./web');
 var kinopoisk = require('./kinopoisk');
+//var kinozal = require('./kinozal');
 
 
 var getFeeds = asyncLimit(function (tracker) {
@@ -36,13 +37,14 @@ var getTorrent = asyncLimit(function (torrent) {
     var body = await(web.getAsync(torrent.url));
     var $ = cheerio.load(body);
     var magnet = $('a[href*="magnet"]').attr('href');
-    torrent.magnet = magnet ? magnet : '';
+    if (!magnet && torrent.trackerId===3)
+        magnet = await(web.getKinozalMagnet(torrent));
     if (!magnet) {
         console.warn('magnet not Found', torrent.url);
         await(db.notfound.insert(torrent));
         return torrent;
     }
-
+    torrent.magnet = magnet;
     var link = $('a[href*="kinopoisk"]').attr('href');
     var re = /film\/(\d+)\/?/
     if (link && re.test(link)) {
@@ -59,13 +61,12 @@ var getTorrent = asyncLimit(function (torrent) {
         await(db.films.update(torrent.kinopoisk));
         return null;
     }
-    console.warn('Kinopoisk id not found', torrent.url, JSON.stringify(kinopoisk.humanize(torrent.title)));
+    console.warn('Kinopoisk id not found', torrent.url, JSON.stringify(kinopoisk.humanize(torrent)));
     await(db.notfound.insert(torrent));
     return torrent;
 });
 
 var run = async(function () {
-    let resp = await(web.Login());
     var lastUpdate = await(db.films.lastUpdate()).result;
     var torrentsWas = await(db.torrents.total()).result;
     var notFoundWas = await(db.notfound.total()).result;
