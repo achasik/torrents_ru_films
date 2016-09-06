@@ -44,6 +44,7 @@ function needleGetJson(url, retry) {
                 let json = JSON.parse(body);
                 resolve(json);
             }catch(e){
+                console.error('Error parsing json', url);
                 reject(e);
             }            
         });
