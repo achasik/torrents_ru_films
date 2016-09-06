@@ -40,7 +40,12 @@ function needleGetJson(url, retry) {
                 console.error('Error getting url', url, err);
                 return reject(err);
             }
-            resolve(JSON.parse(body));
+            try{
+                let json = JSON.parse(body);
+                resolve(json);
+            }catch(e){
+                reject(e);
+            }            
         });
     });
 }
