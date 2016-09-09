@@ -109,18 +109,18 @@ function humanize(torrent) {
     var result = {};
     title = title.replace(/^\[.*?\]\s+/, '');
     //var split = splitPos(title);
-    if (torrent.trackerId !=3) {
+    if (torrent.trackerId != 3) {
         let names = head(title).split('/');
         result.nameRU = web.sanitize(names[0].trim());
         result.nameEN = names.length > 1 ? web.sanitize(names[names.length - 1].trim()) : '';
-        result.year = tail(title).match(/((19|20)\d{2})/)[1];
-    }else{
+        result.year = /((19|20)\d{2})/.test(tail(title)) ? tail(title).match(/((19|20)\d{2})/)[1] : 1900;
+    } else {
         let names = title.split('/');
         result.nameRU = web.sanitize(names[0].trim());
-        if (names.length>1) result.nameEN = web.sanitize(names[1].trim());
-        if (result.nameEN &&(isRu(result.nameEN) || /^(19|20)\d{2}$/.test(result.nameEN)))
-            result.nameEN=''
-        result.year = title.match(/((19|20)\d{2})/)[1];
+        if (names.length > 1) result.nameEN = web.sanitize(names[1].trim());
+        if (result.nameEN && (isRu(result.nameEN) || /^(19|20)\d{2}$/.test(result.nameEN)))
+            result.nameEN = ''
+        result.year = /((19|20)\d{2})/.test(title) ? title.match(/((19|20)\d{2})/)[1] : 1900;
     }
     return result;
 }
