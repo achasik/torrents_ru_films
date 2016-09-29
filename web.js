@@ -106,7 +106,7 @@ function xmlToTorrents(xml, trackerId) {
                 trackerId: trackerId,
                 id: entry.link.match(/(\d+)/)[1],
                 title: entry.title.trim(),
-                url: entry.link,
+                url: entry.link.replace('tracker.rutor.is','xrutor.org'),
                 description: entry.description
             }
         });
