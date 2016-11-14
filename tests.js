@@ -56,39 +56,39 @@ var testDb = async(function () {
 var testSearch = async(function(){
     console.log('Testing Search');
     /*
-    var result = await(kinopoisk.searchApi({ title: 'Паутина / The Cobweb (Винсенте Миннелли / Vincente Minnelli) [1955, США, драма, DVDRip] VO (fiendover) + Original Eng + Sub Rus (dhreilly) [2.19 GB]' }));
+    var result = await(kinopoisk.searchHtml({ title: 'Паутина / The Cobweb (Винсенте Миннелли / Vincente Minnelli) [1955, США, драма, DVDRip] VO (fiendover) + Original Eng + Sub Rus (dhreilly) [2.19 GB]' }));
     assert(result, 'nameRu', 'Паутина');
     assert(result, 'name', 'The Cobweb');
     assert(result, 'year', 1955);
     assert(result, 'id', 10763); 
     */
-    var result = await(kinopoisk.searchApi({ title: 'Нулевые парни / Живые мишени / The Zero Boys (Нико Масторакис / Nico Mastorakis) [1986, США, ужасы, триллер, слэшер, HDRip] VO (sanchez) [1.46 GB]' }));
-    assert(result, 'nameRu', 'Нулевые ребята');
-    assert(result, 'name', 'The Zero Boys');
+    var result = await(kinopoisk.searchHtml({ title: 'Нулевые парни / Живые мишени / The Zero Boys (Нико Масторакис / Nico Mastorakis) [1986, США, ужасы, триллер, слэшер, HDRip] VO (sanchez) [1.46 GB]' }));
+    assert(result, 'nameRU', 'Нулевые ребята');
+    assert(result, 'nameEN', 'The Zero Boys');
     assert(result, 'year', 1986);
     assert(result, 'id', 36466); 
 
-    result = await(kinopoisk.searchApi({ title: 'Секрет успеха / A Woman of Independent Means (Роберт Гриволд / Robert Greenwald) [1995, Великобритания, США, Драма, DVDRip] DVO + Original Eng [4.44 GB]'}));
-    assert(result, 'nameRu', 'Секрет успеха');
-    assert(result, 'name', 'A Woman of Independent Means');
+    result = await(kinopoisk.searchHtml({ title: 'Секрет успеха / A Woman of Independent Means (Роберт Гриволд / Robert Greenwald) [1995, Великобритания, США, Драма, DVDRip] DVO + Original Eng [4.44 GB]'}));
+    assert(result, 'nameRU', 'Секрет успеха');
+    assert(result, 'nameEN', 'A Woman of Independent Means');
     assert(result, 'year', 1995);
     assert(result, 'id', 94294); 
     
-    result = await(kinopoisk.searchApi({ title: 'Цветы Календулы (Сергей Снежкин) [1998, Драма, DVB, AVC] [1.17 GB]'}));
-    assert(result, 'nameRu', 'Цветы календулы');
-    assert(result, 'name', '');
+    result = await(kinopoisk.searchHtml({ title: 'Цветы Календулы (Сергей Снежкин) [1998, Драма, DVB, AVC] [1.17 GB]'}));
+    assert(result, 'nameRU', 'Цветы календулы');
+    assert(result, 'nameEN', '');
     assert(result, 'year', 1999);
     assert(result, 'id', 40773); 
     
-    result = await(kinopoisk.searchApi({ title: '[Обновлено] Мои герои / Mes heros (Эрик Бенар / Eric Besnard) [2012, Франция, комедия, драма, DVB] DVO (НТВ+) + Original (Fre) + Sub (Rus, Eng, Fre, Deu) [2.02 GB]'}));
-    assert(result, 'nameRu', 'Мои герои');
-    assert(result, 'name', 'Mes heros');
+    result = await(kinopoisk.searchHtml({ title: '[Обновлено] Мои герои / Mes heros (Эрик Бенар / Eric Besnard) [2012, Франция, комедия, драма, DVB] DVO (НТВ+) + Original (Fre) + Sub (Rus, Eng, Fre, Deu) [2.02 GB]'}));
+    assert(result, 'nameRU', 'Мои герои');
+    assert(result, 'nameEN', 'Mes heros');
     assert(result, 'year', 2012);
     assert(result, 'id', 647699); 
 
-    result = await(kinopoisk.searchApi({ title: 'Завтра будет поздно (Мартин Тяпак, Александр Карпов) [1972, военный, DVDRip] DUB [1.45 GB]'}));
-    assert(result, 'nameRu', 'Завтра будет поздно');
-    assert(result, 'name', '');
+    result = await(kinopoisk.searchHtml({ title: 'Завтра будет поздно (Мартин Тяпак, Александр Карпов) [1972, военный, DVDRip] DUB [1.45 GB]'}));
+    assert(result, 'nameRU', 'Завтра будет поздно');
+    assert(result, 'nameEN', '');
     assert(result, 'year', 1972);
     assert(result, 'id', 424969); 
 

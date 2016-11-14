@@ -28,6 +28,8 @@ function needleGet(url, retry) {
                 console.error('Error getting url', url, err);
                 return reject(err);
             }
+            if (resp.cookies)
+                headers.cookies = resp.cookies;
             resolve(body);
         });
     });

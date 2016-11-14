@@ -1,4 +1,5 @@
 # Ignore output of scraper
 *.sqlite
+data.sqlite*
 node_modules/
 typings/

@@ -5,13 +5,20 @@ var await = require('asyncawait/await');
 var db = require('./dbAsync');
 var web = require('./web');
 var he = require('he');
+var cheerio = require('cheerio');
 //var diacritics = require('./diacritics');
 const BASE_URL = 'http://api.kinopoisk.cf/';
 
 
-var getFilm = async(function (id) {
+var getFilm = async(function (id, torrent) {
     var film = await(db.films.get(id));
     if (film) return film;
+    film = humanize(torrent);
+    film.id = id;
+    var result = await(db.films.insert(film));
+    return film;
+    //film = 
+    /*
     var url = BASE_URL + 'getFilm?filmID=' + id + '&rand=' + Math.floor((Math.random() * 1000) + 1);
     var json = await(web.getJson(url));
     if (!json) {
@@ -22,6 +29,7 @@ var getFilm = async(function (id) {
     if (!film) return null;
     var result = await(db.films.insert(film));
     return film;
+    */
 });
 exports.getFilm = getFilm;
 
@@ -29,9 +37,55 @@ exports.search = asyncLimit(function (torrent) {
     //var possible = humanize(torrent);
     var film = await(searchLocal(torrent));
     if (!film)
-        film = await(searchApi(torrent));
+        film = await(searchHtml(torrent));
     return film;
 });
+var searchHtml = async(function (torrent, findRu){
+    let possible = humanize(torrent);
+    var keyword = possible.nameEN || possible.nameRU;
+    if (findRu && possible.nameRU) keyword = possible.nameRU;
+    if (!keyword) throw new Error('Keyword is null' + possible);
+    keyword = keyword.split(' ').join('+');
+    keyword = encodeURI(keyword);
+    var url = "https://m.kinopoisk.ru/search/"+keyword+"/";
+    var html = await(web.getAsync(url));
+    let $ =  cheerio.load(html);
+    var youmean = null;
+    var films =[];
+    $('div[class="block search"]').each(function(i,e){
+        if($(e).children('p').text().startsWith('Скорее всего'))
+            youmean = jsonToFilm(spanToFilm($(e).children('span').first()));
+        else if($(e).children('p').text().startsWith('Похожие'))
+            films = $(e).children('span').map(function(i,e){
+                return jsonToFilm(spanToFilm($(e)));
+            });
+    });   
+    if(youmean && filmsEqual(possible, youmean))
+        return youmean;
+    let film = films.find(function (f) { return filmsEqual(possible, f) });
+    if (film) return film;
+    if (!findRu && possible.nameRU) return searchApi(torrent, true);
+    return null;    
+});
+exports.searchHtml = searchHtml;
+function spanToFilm(span){
+    let a = span.children('a');
+    if (a.text().startsWith('показать всё'))
+        return null;    
+    let href = a.attr('href');
+    let id = href.match(/(\d+)/)[1];
+    let arr = a.text().split(',');
+    let nameRU = arr[0].trim();
+    let year = arr.length >1 ? arr[1].trim() : '1900';
+    arr = span.html().split('<br>');
+    let nameEN = arr.length>1 ? arr[1].trim().replace('&#xA0;','') : '';
+    return {
+        'id': id,
+        'nameRU': nameRU,
+        'nameEN': nameEN,
+        'year': year
+    };
+}
 
 var searchApi = async(function (torrent, findRu) {
     let possible = humanize(torrent);
@@ -72,9 +126,10 @@ function compareNames(name1, name2) {
     return name1.toLowerCase() === name2.toLowerCase();
 }
 function jsonToFilm(json) {
+    if(!json) return null;
     var film = {};
-    if (json.id) film.id = json.id;
-    if (json.filmID) film.id = json.filmID;
+    if (json.id) film.id = parseInt(json.id);
+    if (json.filmID) film.id = parseInt(json.filmID);
     if(json.nameEN)
         film.nameEN = web.sanitize(json.nameEN).replace(/\s+\(.*?\)$/, '');
     if(json.nameRU)
@@ -83,7 +138,7 @@ function jsonToFilm(json) {
         film.nameEN = film.nameRU;
         film.nameRU = '';
     }
-    film.year = json.year;
+    film.year = parseInt(json.year);
     film.description = json.description ? web.sanitize(json.description) : '';
     if (!film.id || (!film.nameEN && !film.nameRU) || !film.year) {
         //console.warn('Json api wrong' + JSON.stringify(film));

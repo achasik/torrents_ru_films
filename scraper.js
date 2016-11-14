@@ -8,7 +8,7 @@ var cheerio = require("cheerio");
 var db = require('./dbAsync');
 var web = require('./web');
 var kinopoisk = require('./kinopoisk');
-//var kinozal = require('./kinozal');
+var api = require('./kinoapi')
 
 
 var getFeeds = asyncLimit(function (tracker) {
@@ -50,7 +50,7 @@ var getTorrent = asyncLimit(function (torrent) {
     var re = /film\/(\d+)\/?/
     if (link && re.test(link)) {
         let id = re.exec(link)[1];
-        let film = await(kinopoisk.getFilm(id));
+        let film = await(kinopoisk.getFilm(id,torrent));
         if (film) torrent.kinopoisk = film.id;
     } else {
         let film = await(kinopoisk.search(torrent));
@@ -82,11 +82,12 @@ var run = async(function () {
     return trackers;
 });
 
+
 let script = process.env.MORPH_SCRIPT
 if (script) {
     db.init(script);
 }
-else {
+else {    
     run()
         .then(function () { db.close() })
         .then(function () { console.log('DONE') })

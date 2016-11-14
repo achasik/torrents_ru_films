@@ -12,6 +12,6 @@
     "he": "^1.1.0",
     "needle": "latest",
     "sqlite3": "latest",
-    "xml2js": "latest"
+    "xml2js": "latest"    
   }
 }
