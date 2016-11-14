@@ -87,10 +87,10 @@ let script = process.env.MORPH_SCRIPT
 if (script) {
     db.init(script);
 }
-else {    
-    run()
-        .then(function () { db.close() })
-        .then(function () { console.log('DONE') })
-        .catch(function (err) { console.error(err); });
-}
+   
+run()
+    .then(function () { db.close() })
+    .then(function () { console.log('DONE') })
+    .catch(function (err) { console.error(err); });
+
 
