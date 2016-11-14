@@ -55,13 +55,13 @@ var testDb = async(function () {
 });
 var testSearch = async(function(){
     console.log('Testing Search');
-    /*
-    var result = await(kinopoisk.searchHtml({ title: 'Паутина / The Cobweb (Винсенте Миннелли / Vincente Minnelli) [1955, США, драма, DVDRip] VO (fiendover) + Original Eng + Sub Rus (dhreilly) [2.19 GB]' }));
-    assert(result, 'nameRu', 'Паутина');
-    assert(result, 'name', 'The Cobweb');
-    assert(result, 'year', 1955);
-    assert(result, 'id', 10763); 
-    */
+  
+    var result = await(kinopoisk.searchHtml({ title: 'Высокий, тёмный и смертоносный / Tall, Dark and Deadly (Кеннет Финк / Kenneth Fink) [1995, США, Триллер, Детектив, VHSRip' }));
+    assert(result, 'nameRU', 'Высокий, тёмный и смертоносный');
+    assert(result, 'nameEN', 'Tall, Dark and Deadly');
+    assert(result, 'year', 1995);
+    assert(result, 'id', 298010); 
+
     var result = await(kinopoisk.searchHtml({ title: 'Нулевые парни / Живые мишени / The Zero Boys (Нико Масторакис / Nico Mastorakis) [1986, США, ужасы, триллер, слэшер, HDRip] VO (sanchez) [1.46 GB]' }));
     assert(result, 'nameRU', 'Нулевые ребята');
     assert(result, 'nameEN', 'The Zero Boys');

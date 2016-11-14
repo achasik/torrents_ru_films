@@ -53,7 +53,7 @@ var searchHtml = async(function (torrent, findRu){
     var youmean = null;
     var films =[];
     $('div[class="block search"]').each(function(i,e){
-        if($(e).children('p').text().startsWith('Скорее всего'))
+        if($(e).children('p').text().startsWith('Скорее'))
             youmean = jsonToFilm(spanToFilm($(e).children('span').first()));
         else if($(e).children('p').text().startsWith('Похожие'))
             films = $(e).children('span').map(function(i,e){
@@ -75,8 +75,8 @@ function spanToFilm(span){
     let href = a.attr('href');
     let id = href.match(/(\d+)/)[1];
     let arr = a.text().split(',');
-    let nameRU = arr[0].trim();
-    let year = arr.length >1 ? arr[1].trim() : '1900';
+    let nameRU = arr.slice(0,arr.length-1).join(',');
+    let year = arr.length >1 ? arr[arr.length-1].trim() : '1900';
     arr = span.html().split('<br>');
     let nameEN = arr.length>1 ? arr[1].trim().replace('&#xA0;','') : '';
     return {
