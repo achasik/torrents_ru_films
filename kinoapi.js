@@ -2,7 +2,7 @@
 
 var needle = require('needle');
 var async = require('asyncawait/async');
-var md5 = require('blueimp-md5');
+//var md5 = require('blueimp-md5');
 
 
 
@@ -16,7 +16,7 @@ needle.defaults({
         'device':'android',
         'Android-Api-Version':'22',
         'countryID':'2',
-        'ClientId': md5(Math.random() * 99999 + 1),
+        //'ClientId': md5(Math.random() * 99999 + 1),
         'clientDate':new Date().toDateString(),
         'cityID':'2',
         'Image-Scale':'3',
@@ -30,7 +30,7 @@ var options ={
         'device':'android',
         'Android-Api-Version':'22',
         'countryID':'2',
-        'ClientId': md5(Math.random() * 99999 + 1),
+        //'ClientId': md5(Math.random() * 99999 + 1),
         'clientDate':new Date().toDateString(),
         'cityID':'2',
         'Image-Scale':'3',
@@ -55,5 +55,6 @@ var getFilm = async(function (id) {
 exports.getFilm = getFilm;
 
 function key(query){
-    return md5(query+KP_SECRET);
+    //return md5(query+KP_SECRET);
+    return query+KP_SECRET;
 }
