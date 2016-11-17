@@ -15,6 +15,7 @@ var getFilm = async(function (id, torrent) {
     if (film) return film;
     film = humanize(torrent);
     film.id = id;
+    film.description = await(getDescription(film));
     var result = await(db.films.insert(film));
     return film;
     //film = 
@@ -58,16 +59,33 @@ var searchHtml = async(function (torrent, findRu){
         else if($(e).children('p').text().startsWith('Похожие'))
             films = $(e).children('span').map(function(i,e){
                 return jsonToFilm(spanToFilm($(e)));
-            });
+            }).get();
     });   
-    if(youmean && filmsEqual(possible, youmean))
+    if(youmean && filmsEqual(possible, youmean)){
+        youmean.description = await(getDescription(youmean));
         return youmean;
-    let film = films.find(function (f) { return filmsEqual(possible, f) });
-    if (film) return film;
-    if (!findRu && possible.nameRU) return searchApi(torrent, true);
+    }
+        
+    let film = films.find(function (f) { return filmsEqual(possible, f) });    
+    if (film) {
+        film.description = await(getDescription(film));
+        return film;
+    }
+    if (!findRu && possible.nameRU) return searchHtml(torrent, true);
     return null;    
 });
 exports.searchHtml = searchHtml;
+
+var getDescription = async(function (film){
+    return '';
+    if (!film.id) return '';
+    let url = 'https://m.kinopoisk.ru/movie/'+film.id +'/';
+    let html = await (web.getAsync(url));
+    let $ = cheerio.load(html);
+    let desc =$('p[class="descr"]').first().text();
+    desc =web.sanitize(desc);
+    return desc;
+});
 function spanToFilm(span){
     let a = span.children('a');
     if (a.text().startsWith('показать всё'))
@@ -111,7 +129,7 @@ var searchApi = async(function (torrent, findRu) {
     if (!findRu && possible.nameRU) return searchApi(torrent, true);
     return null;
 });
-exports.searchApi = searchApi;
+//exports.searchApi = searchApi;
 
 function filmsEqual(possible, film) {
     if (!possible || !film) return false;

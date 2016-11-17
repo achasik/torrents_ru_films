@@ -8,7 +8,7 @@ var cheerio = require("cheerio");
 var db = require('./dbAsync');
 var web = require('./web');
 var kinopoisk = require('./kinopoisk');
-var api = require('./kinoapi')
+
 
 
 var getFeeds = asyncLimit(function (tracker) {
