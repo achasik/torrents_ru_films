@@ -47,7 +47,7 @@ var searchHtml = async(function (torrent, findRu){
     if (findRu && possible.nameRU) keyword = possible.nameRU;
     if (!keyword) throw new Error('Keyword is null' + possible);
     keyword = keyword.split(' ').join('+');
-    keyword = encodeURI(keyword);
+    keyword = encodeURI(keyword).replace(':','%3A');
     var url = "https://m.kinopoisk.ru/search/"+keyword+"/";
     var html = await(web.getAsync(url));
     let $ =  cheerio.load(html);

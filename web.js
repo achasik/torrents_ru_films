@@ -11,11 +11,12 @@ var diacritics = require('./diacritics');
 needle.defaults({ 
     //connection: 'Keep-Alive',
     user_agent: 'Mozilla/5.0 (Windows NT 6.3; WOW64; rv:36.0) Gecko/20100101 Firefox/36.0',
+    timeout: 15000,
     follow: 2
  });
 
 let headers={};
-let kinozalHeaders={}
+//let kinozalHeaders={}
 
 exports.xmlToTorrents = xmlToTorrents;
 exports.decode = myDecode;
@@ -23,7 +24,8 @@ exports.sanitize = sanitize;
 
 function needleGet(url, retry) {
     return new Promise(function (resolve, reject) {
-        let hdr = url.indexOf('kinozal') >0 ? kinozalHeaders : headers;
+        let host = getHost(url);
+        let hdr = headers[host] || {};
         needle.get(url, hdr, function (err, resp, body) {
             if (err) {
                 if(!retry) return resolve(null);
@@ -31,7 +33,7 @@ function needleGet(url, retry) {
                 return reject(err);
             }
             if (resp.cookies)
-                headers.cookies = resp.cookies;
+                headers[host] = resp.cookies;
             resolve(body);
         });
     });
@@ -54,7 +56,7 @@ function needleGetJson(url, retry) {
         });
     });
 }
-function getCookies () {
+function getKinozalCookies () {
      return new Promise(function (resolve, reject) {
          needle.get('http://kinozal.me',function (err, resp, body) {
              if (err) return reject(err);
@@ -64,6 +66,7 @@ function getCookies () {
                 {headers:{cookies: cookies}, follow:0},
                 function(err,resp, body){
                     if(err) return reject(err);
+                    headers['kinozal.me'] ={cookies: resp.cookies};
                     resolve(resp.cookies);
                 });
          });
@@ -77,9 +80,8 @@ exports.getJson = async(function (url) {
 });
 
 exports.getAsync = async(function (url) {
-    if(url.indexOf('kinozal')>0 && !kinozalHeaders.cookies){
-        let cookies = await(getCookies());
-        kinozalHeaders ={cookies: cookies};
+    if(url.indexOf('kinozal')>0 && !headers['kinozal.me']){
+        await(getKinozalCookies());        
     }
     let body = await(needleGet(url));
     if (body) return body;
@@ -128,6 +130,16 @@ function xmlToTorrents(xml, trackerId) {
     }
     return torrents;
 }
+function getHost(url) {
+    var match = url.match(/:\/\/(www[0-9]?\.)?(.[^/:]+)/i);
+    if (match != null && match.length > 2 && typeof match[2] === 'string' && match[2].length > 0) {
+    return match[2];
+    }
+    else {
+        return null;
+    }
+}
+
 function myDecode(str) {
     return he.decode(str);
 }
