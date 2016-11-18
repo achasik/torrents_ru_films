@@ -1,1 +1,1 @@
-update trackers set active=0 where id=3
+update trackers set active=1 where id=3

@@ -15,6 +15,7 @@ needle.defaults({
  });
 
 let headers={};
+let kinozalHeaders={}
 
 exports.xmlToTorrents = xmlToTorrents;
 exports.decode = myDecode;
@@ -22,7 +23,8 @@ exports.sanitize = sanitize;
 
 function needleGet(url, retry) {
     return new Promise(function (resolve, reject) {
-        needle.get(url, headers, function (err, resp, body) {
+        let hdr = url.indexOf('kinozal') >0 ? kinozalHeaders : headers;
+        needle.get(url, hdr, function (err, resp, body) {
             if (err) {
                 if(!retry) return resolve(null);
                 console.error('Error getting url', url, err);
@@ -75,9 +77,9 @@ exports.getJson = async(function (url) {
 });
 
 exports.getAsync = async(function (url) {
-    if(url.indexOf('kinozal')>0 && !headers.cookies){
+    if(url.indexOf('kinozal')>0 && !kinozalHeaders.cookies){
         let cookies = await(getCookies());
-        headers ={cookies: cookies};
+        kinozalHeaders ={cookies: cookies};
     }
     let body = await(needleGet(url));
     if (body) return body;
