@@ -12,7 +12,7 @@ var XMLHttpRequest = require("xmlhttprequest").XMLHttpRequest;
 var theMovieDb = {};
 
 theMovieDb.common = {
-    api_key: process.env.API_KEY,
+    api_key: process.env.MORPH_KEY,
     base_uri: "http://api.themoviedb.org/3/",
     images_uri: "http://image.tmdb.org/t/p/",
     timeout: 5000,
