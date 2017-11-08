@@ -5,5 +5,4 @@ node_modules/
 typings/
 .vscode/
 .vscode/launch.json
-.gitignore
 .vscode/launch.json
