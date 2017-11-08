@@ -70,6 +70,9 @@ exports.notfound = {
     })
 }
 exports.films = {
+    maxId: async(function(){
+        return _db.getAsync('SELECT MAX(id) AS result FROM films');
+    }),
     lastUpdate: async (function(){
         return _db.getAsync('SELECT MAX(updated) AS result FROM films');
     }),
@@ -83,8 +86,8 @@ exports.films = {
         return _db.runAsync("UPDATE films SET updated=strftime('%s','now') WHERE id=?", [id]);
     }),
     insert: async(function (film) {
-        return _db.runAsync("INSERT OR REPLACE INTO films(id,name,nameRu,year,description,updated) VALUES(?,?,?,?,?,strftime('%s','now'))",
-            [film.id, film.nameEN, film.nameRU, film.year, film.description]);
+        return _db.runAsync("INSERT OR REPLACE INTO films(id,name,nameRu,year,description,updated, tmdb, tmdb_poster) VALUES(?,?,?,?,?,strftime('%s','now'),?,?)",
+            [film.id, film.nameEN, film.nameRU, film.year, film.description, film.tmdb, film.tmdb_poster]);
     }),
     search: async(function(film){
         let year = parseInt(film.year);

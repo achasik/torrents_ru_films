@@ -4,6 +4,7 @@ var asyncLimit = async.mod({ maxConcurrency: 1 });
 var await = require('asyncawait/await');
 var db = require('./dbAsync');
 var web = require('./web');
+var tmdb = require('./themoviedb');
 var he = require('he');
 var cheerio = require('cheerio');
 //var diacritics = require('./diacritics');
@@ -15,7 +16,7 @@ var getFilm = async(function (id, torrent) {
     if (film) return film;
     film = humanize(torrent);
     film.id = id;
-    film.description = await(getDescription(film));
+    //film.description = await(getDescription(film));
     var result = await(db.films.insert(film));
     return film;
     //film = 
@@ -37,10 +38,19 @@ exports.getFilm = getFilm;
 exports.search = asyncLimit(function (torrent) {
     //var possible = humanize(torrent);
     var film = await(searchLocal(torrent));
-    if (!film)
-        film = await(searchHtml(torrent));
+    if (!film){
+        film = await(searchTmdbAsync(torrent));
+        if(!film) return film;
+        let result = await(db.films.maxId());
+        let maxId = result.result;
+        if (maxId<1000000000) maxId = 999999999;
+        maxId = maxId+1;
+        film.id=maxId;
+        await(db.films.insert(film));    
+    }
     return film;
 });
+/*
 var searchHtml = async(function (torrent, findRu){
     let possible = humanize(torrent);
     var keyword = possible.nameEN || possible.nameRU;
@@ -48,7 +58,7 @@ var searchHtml = async(function (torrent, findRu){
     if (!keyword) throw new Error('Keyword is null' + possible);
     keyword = keyword.split(' ').join('+');
     keyword = encodeURI(keyword).replace(':','%3A');
-    var url = "https://m.kinopoisk.ru/search/"+keyword+"/";
+     var url = "https://m.kinopoisk.ru/search/"+keyword+"/";
     var html = await(web.getAsync(url));
     let $ =  cheerio.load(html);
     var youmean = null;
@@ -71,11 +81,81 @@ var searchHtml = async(function (torrent, findRu){
         film.description = await(getDescription(film));
         return film;
     }
-    if (!findRu && possible.nameRU) return searchHtml(torrent, true);
-    return null;    
+    if (!findRu && possible.nameRU) return searchHtml(torrent, true); 
+    //await(searchTmdb(possible.nameEN, possible.nameRU, possible.year));
+    var result = await(searchTmdb(torrent));
+    return result;
+    //return null;    
 });
 exports.searchHtml = searchHtml;
+*/
 
+var searchTmdbAsync = function(torrent){
+    return new Promise(function (resolve, reject){
+        let possible = humanize(torrent);
+        var keyword = possible.nameEN || possible.nameRU;
+        //if (findRu && possible.nameRU) keyword = possible.nameRU;
+        if (!keyword) throw new Error('Keyword is null' + possible);
+        keyword = keyword.split(' ').join('+');
+        keyword = encodeURI(keyword).replace(':','%3A');
+    
+        tmdb.theMovieDb.search.getMovie({"query":keyword, }, 
+        function success(data){
+            data = JSON.parse(data);
+            if(data.total_results==0){
+                return resolve(null);
+            }
+            let tmdb = data.results[0];
+            let film = {
+                'id' : 0,
+                'tmdb': tmdb.id,
+                'tmdb_poster': tmdb.poster_path,
+                'nameRU': possible.nameRU,
+                'nameEN': tmdb.original_title,
+                'year': possible.year,
+                'description' :tmdb.overview
+                //https://image.tmdb.org/t/p/w500/9qw1nYowgG6jKoTAhUYC93nooVZ.jpg
+            };
+            resolve(film);
+        }, 
+        function error(data){
+            reject(data);
+        })
+            
+    });
+}
+/*
+var searchTmdb = async(function (torrent){
+    let possible = humanize(torrent);
+    var keyword = possible.nameEN || possible.nameRU;
+    //if (findRu && possible.nameRU) keyword = possible.nameRU;
+    if (!keyword) throw new Error('Keyword is null' + possible);
+    keyword = keyword.split(' ').join('+');
+    keyword = encodeURI(keyword).replace(':','%3A');
+
+    tmdb.theMovieDb.search.getMovie({"query":keyword, "year":possible.year}, 
+    function success(data){
+        data = JSON.parse(data);
+        if(data.total_results==0)
+            return null;    
+        let tmdb = data.results[0];
+
+        return {
+            'id' : 9999999999,
+            'tmdb': tmdb.id,
+            'tmdb_poster': tmdb.poster_path,
+            'nameRU': possible.nameRU,
+            'nameEN': tmdb.original_title,
+            'year': possible.year,
+            'description' :tmdb.overview
+            //https://image.tmdb.org/t/p/w500/9qw1nYowgG6jKoTAhUYC93nooVZ.jpg
+        }
+    }, 
+    function error(data){
+        console.warn('TMDB error '+data);
+    })
+});
+*/
 var getDescription = async(function (film){
     return '';
     if (!film.id) return '';
