@@ -25,7 +25,7 @@ var getFeedEntries = asyncLimit(function (feed) {
     //console.log('Torrents found', count, feed.url);
 
     feed.torrents = await(feed.torrents.filter(function (torrent) { return !await(db.torrents.get(torrent.trackerId, torrent.id)) }));
-    feed.torrents = await(feed.torrents.filter(function (torrent) { return !await(db.notfound.get(torrent.trackerId, torrent.id)) }));
+    //feed.torrents = await(feed.torrents.filter(function (torrent) { return !await(db.notfound.get(torrent.trackerId, torrent.id)) }));
     //console.log('Removed existing torrents', count - feed.torrents.length, feed.url);
     console.log('New torrents found:', feed.torrents.length, feed.url);
     feed.torrents = await(feed.torrents.map(getTorrent));
