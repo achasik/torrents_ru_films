@@ -13,6 +13,6 @@
     "needle": "latest",
     "sqlite3": "latest",
     "xml2js": "latest",
-    "xmlhttprequest": "latest"    
+    "xmlhttprequest": "latest"
   }
 }

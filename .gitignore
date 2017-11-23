@@ -5,4 +5,4 @@ node_modules/
 typings/
 .vscode/
 .vscode/launch.json
-.vscode/launch.json
+package-lock.json
